@@ -1,10 +1,28 @@
-name: ARC Demo
+name: Build Official PetClinic
 on:
   workflow_dispatch:
 
 jobs:
-  Use-ARC:
+  maven-build:
     runs-on: petclinic-runner
+    container:
+      image: maven:3.9.6-eclipse-temurin-17 
+
     steps:
-      - run: echo "🎉 Running on ARC self-hosted runner!"
-      - run: echo "Hello World"
+      # Step 1: Clone the official repo instead of yours
+      - name: Checkout Official PetClinic
+        uses: actions/checkout@v4
+        with:
+          repository: spring-projects/spring-petclinic
+          ref: main
+
+      # Step 2: Build the JAR using the Maven container
+      - name: Maven Package
+        run: ./mvnw package -DskipTests
+
+      # Step 3: Save the resulting JAR
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-petclinic-jar
+          path: target/*.jar
