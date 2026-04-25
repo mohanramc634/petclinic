@@ -7,4 +7,4 @@ jobs:
     runs-on: petclinic-runner
     steps:
       - run: echo "🎉 Running on ARC self-hosted runner!"
-      - run: echo "Repo: ${{ github.repository }}, Ref: ${{ github.ref }}"
+      - run: echo "Hello World"
