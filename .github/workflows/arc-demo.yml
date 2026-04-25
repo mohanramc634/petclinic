@@ -5,22 +5,24 @@ on:
 jobs:
   maven-build:
     runs-on: petclinic-runner
-    container:
-      image: maven:3.9.6-eclipse-temurin-17 
+    # REMOVED the container section to avoid Docker errors
 
     steps:
-      # Step 1: Clone the official repo instead of yours
       - name: Checkout Official PetClinic
         uses: actions/checkout@v4
         with:
           repository: spring-projects/spring-petclinic
           ref: main
 
-      # Step 2: Build the JAR using the Maven container
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Maven Package
         run: ./mvnw package -DskipTests
 
-      # Step 3: Save the resulting JAR
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
