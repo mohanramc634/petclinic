@@ -8,6 +8,58 @@ jobs:
     # REMOVED the container section to avoid Docker errors
 
     steps:
+      - name: Runner environment
+        run: |
+          echo "====== OS ======"
+          cat /etc/os-release
+
+          echo "====== CPU & Memory ======"
+          nproc
+          free -h
+
+          echo "====== Disk ======"
+          df -h
+
+          echo "====== Java ======"
+          java -version 2>&1 || echo "NOT FOUND"
+          javac -version 2>&1 || echo "NOT FOUND"
+          echo "JAVA_HOME=${JAVA_HOME:-NOT SET}"
+
+          echo "====== Maven ======"
+          mvn -version 2>&1 || echo "NOT FOUND"
+          echo "MAVEN_HOME=${MAVEN_HOME:-NOT SET}"
+
+          echo "====== Docker ======"
+          docker --version 2>&1 || echo "NOT FOUND"
+          docker info 2>&1 || echo "Docker daemon not accessible"
+
+          echo "====== kubectl ======"
+          kubectl version --client 2>&1 || echo "NOT FOUND"
+
+          echo "====== AWS CLI ======"
+          aws --version 2>&1 || echo "NOT FOUND"
+
+          echo "====== Helm ======"
+          helm version --short 2>&1 || echo "NOT FOUND"
+
+          echo "====== Node / npm ======"
+          node --version 2>&1 || echo "NOT FOUND"
+          npm --version 2>&1 || echo "NOT FOUND"
+
+          echo "====== Python ======"
+          python3 --version 2>&1 || echo "NOT FOUND"
+          pip3 --version 2>&1 || echo "NOT FOUND"
+
+          echo "====== Git ======"
+          git --version
+
+          echo "====== All binaries in PATH ======"
+          echo $PATH
+          compgen -c | sort -u
+
+          echo "====== Environment variables ======"
+          env | sort
+          
       - name: Checkout Official PetClinic
         uses: actions/checkout@v4
         with:
@@ -28,3 +80,5 @@ jobs:
         with:
           name: spring-petclinic-jar
           path: target/*.jar
+
+      
