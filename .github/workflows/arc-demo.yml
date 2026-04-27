@@ -33,11 +33,12 @@ jobs:
           name: spring-petclinic-jar
           path: target/*.jar
 
-      # Generate the Dockerfile dynamically since we checked out an external repo
+# Generate the Dockerfile dynamically since we checked out an external repo
       - name: Create Dockerfile
         run: |
           cat <<EOF > Dockerfile
-          FROM eclipse-temurin:17-jre-alpine
+          # Added docker.io/ to specify the registry explicitly
+          FROM docker.io/eclipse-temurin:17-jre-alpine
           WORKDIR /app
           COPY target/*.jar app.jar
           EXPOSE 8080
