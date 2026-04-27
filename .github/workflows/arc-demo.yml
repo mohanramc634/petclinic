@@ -60,11 +60,14 @@ jobs:
           [storage]
           driver = "vfs"
           EOF
-
-          # Migrate podman/buildah storage
-          podman system migrate || true
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.TOKEN }}" | buildah login ghcr.io -u ${{ github.actor }} --password-stdin
 
         # Build the container image using the native Buildah CLI
       - name: Build Image with Buildah
         run: |
           buildah bud --storage-driver=vfs --isolation=chroot --userns=host -t ghcr.io/mohanramc634/spring-petclinic:${{ github.sha }} -f Dockerfile .
+      - name: Push Image with Buildah
+        run: |
+          buildah push --storage-driver=vfs ghcr.io/mohanramc634/spring-petclinic:${{ github.sha }}
