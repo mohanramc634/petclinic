@@ -44,10 +44,29 @@ jobs:
           EXPOSE 8080
           ENTRYPOINT ["java", "-jar", "app.jar"]
           EOF
+      - name: Fix subuid/subgid and configure buildah
+        run: |
+          # Write subuid/subgid for current user
+          USERNAME=$(whoami)
+          echo "${USERNAME}:100000:65536" | sudo tee /etc/subuid
+          echo "${USERNAME}:100000:65536" | sudo tee /etc/subgid
+
+          # Ensure newuidmap/newgidmap are setuid
+          sudo chmod u+s /usr/bin/newuidmap /usr/bin/newgidmap
+
+          # Force vfs driver + chroot isolation — no kernel namespace needed
+          mkdir -p ~/.config/containers
+          cat > ~/.config/containers/storage.conf <<EOF
+          [storage]
+          driver = "vfs"
+          EOF
+
+          # Migrate podman/buildah storage
+          podman system migrate || true
 
         # Build the container image using the native Buildah CLI
       - name: Build Image with Buildah
         run: |
-          buildah build \
+          buildah build --storage-driver=vfs --isolation=chroot \
             -t ghcr.io/mohanramc634/spring-petclinic:${{ github.sha }} \
             -f Dockerfile .
