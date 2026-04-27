@@ -27,9 +27,26 @@ jobs:
       - name: Maven Package
         run: mvn package -DskipTests
 
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: spring-petclinic-jar
           path: target/*.jar
+
+      # Generate the Dockerfile dynamically since we checked out an external repo
+      - name: Create Dockerfile
+        run: |
+          cat <<EOF > Dockerfile
+          FROM eclipse-temurin:17-jre-alpine
+          WORKDIR /app
+          COPY target/*.jar app.jar
+          EXPOSE 8080
+          ENTRYPOINT ["java", "-jar", "app.jar"]
+          EOF
+
+        # Build the container image using the native Buildah CLI
+      - name: Build Image with Buildah
+        run: |
+          buildah build \
+            -t ghcr.io/mohanramc634/spring-petclinic:${{ github.sha }} \
+            -f Dockerfile .
