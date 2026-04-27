@@ -1,10 +1,33 @@
-name: ARC Demo
+name: Build Official PetClinic
 on:
   workflow_dispatch:
 
 jobs:
-  Use-ARC:
+  maven-build:
     runs-on: petclinic-runner
+    # REMOVED the container section to avoid Docker errors
+
+
     steps:
-      - run: echo "🎉 Running on ARC self-hosted runner!"
-      - run: echo "Hello world"
+
+      - name: Checkout Official PetClinic
+        uses: actions/checkout@v4
+        with:
+          repository: spring-projects/spring-petclinic
+          ref: main
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Maven Package
+        run: ./mvnw package -DskipTests
+
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-petclinic-jar
+          path: target/*.jar
