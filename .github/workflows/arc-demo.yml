@@ -22,8 +22,10 @@ jobs:
       #     java-version: '17'
       #     distribution: 'temurin'
 
+      # - name: Maven Package
+      #   run: ./mvnw package -DskipTests
       - name: Maven Package
-        run: ./mvnw package -DskipTests
+        run: mvn package -DskipTests
 
 
       - name: Upload Artifact
